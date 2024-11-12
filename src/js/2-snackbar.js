@@ -1,57 +1,63 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import errorMessage from '../img/error-message.svg';
-import fulfilledMessage from '../img/fulfilled-message.svg';
 
-const form = document.querySelector('.form');
+const formOfPromises = document.querySelector('.form');
 
-form.addEventListener('submit', onFormSubmit);
+formOfPromises.addEventListener('submit', evt => {
+  evt.preventDefault();
+  const userDelay = evt.target.elements.delay.value;
+  const promiseType = evt.target.elements.state.value;
 
-function onFormSubmit(e) {
-  e.preventDefault();
-  const promise = new Promise((resolve, reject) => {
-    if (form.elements.state.value === 'fulfilled') {
-      resolve(form.elements.delay.value);
-    } else {
-      reject(form.elements.delay.value);
-    }
-  });
-
-  promise
-    .then(delay => {
-      setTimeout(() => {
-        iziToast.show({
-          message: `Fulfilled promise in ${delay}ms`,
-          position: 'topRight',
-          backgroundColor: '#59A10D',
-          titleColor: '#fff',
-          titleSize: '16px',
-          titleLineHeight: '24px',
-          messageColor: '#fff',
-          messageSize: '16px',
-          messageLineHeight: '24px',
-          iconUrl: fulfilledMessage,
-          timeout: 5000,
-        });
-      }, delay);
-      form.elements.delay.value = '';
+  makePromise(userDelay, promiseType)
+    .then(fulfilledDelay => {
+      successToastOpt.message = `Fulfilled promise in ${fulfilledDelay}ms`;
+      iziToast.success(successToastOpt);
     })
-    .catch(delay => {
-      setTimeout(() => {
-        iziToast.show({
-          message: `Rejected promise in ${delay}ms`,
-          position: 'topRight',
-          backgroundColor: '#ef4040',
-          titleColor: '#fff',
-          titleSize: '16px',
-          titleLineHeight: '24px',
-          messageColor: '#fff',
-          messageSize: '16px',
-          messageLineHeight: '24px',
-          iconUrl: errorMessage,
-          timeout: 5000,
-        });
-      }, delay);
-      form.elements.delay.value = '';
+    .catch(errorDelay => {
+      errorToastOpt.message = `Rejected promise in ${errorDelay}ms`;
+      iziToast.error(errorToastOpt);
     });
+});
+
+function makePromise(delay, typeOfPromise) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (typeOfPromise === 'fulfilled') {
+        resolve(delay);
+      } else {
+        reject(delay);
+      }
+    }, delay);
+  });
 }
+
+const successToastOpt = {
+  title: 'OK',
+  titleSize: '16px',
+  titleLineHeight: 1.5,
+  messageColor: '#fff',
+  messageSize: '16px',
+  messageLineHeight: 1.5,
+  backgroundColor: '#59a10d',
+  position: 'topRight',
+  theme: 'dark',
+  closeOnEscape: true,
+  transitionIn: 'bounceInDown',
+  transitionOut: 'fadeOutUp',
+};
+
+const errorToastOpt = {
+  title: 'Error',
+  titleSize: '16px',
+  titleLineHeight: 1.5,
+  messageSize: '16px',
+  messageLineHeight: 1.5,
+  messageColor: '#fff',
+  backgroundColor: '#ef4040',
+  iconColor: '#fff',
+  position: 'topRight',
+  theme: 'dark',
+  closeOnEscape: true,
+  transitionIn: 'bounceInDown',
+  transitionOut: 'fadeOutUp',
+};
