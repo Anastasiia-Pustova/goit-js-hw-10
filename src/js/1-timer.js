@@ -8,13 +8,13 @@ const datetimePicker = document.querySelector('#datetime-picker');
 const startBtn = document.querySelector('button[data-start]');
 const dataDays = document.querySelector('span[data-days]');
 const dataHours = document.querySelector('span[data-hours]');
-const dataiMnutes = document.querySelector('span[data-minutes]');
+const dataMinutes = document.querySelector('span[data-minutes]');
 const dataSeconds = document.querySelector('span[data-seconds]');
 
-let curentData = new Date();
+let currentData = new Date();
 let userSelectedDate = null;
 
-// btn blocked after click
+// Блокування кнопки після натискання
 startBtn.disabled = true;
 
 startBtn.addEventListener('click', onStartTimerClick);
@@ -48,7 +48,7 @@ const options = {
   },
 };
 
-//  flatpickr
+// Ініціалізація flatpickr
 flatpickr(datetimePicker, options);
 
 function convertMs(ms) {
@@ -72,26 +72,30 @@ function addLeadingZero(value) {
 function updateTimer({ days, hours, minutes, seconds }) {
   dataDays.textContent = days;
   dataHours.textContent = hours;
-  dataiMnutes.textContent = minutes;
+  dataMinutes.textContent = minutes;
   dataSeconds.textContent = seconds;
 }
 
 function onStartTimerClick() {
-  /// block button and input
+  // Блокування кнопки та input
   startBtn.disabled = true;
   datetimePicker.disabled = true;
 
   const intervalId = setInterval(() => {
-    curentData = new Date();
-    const differentTime = userSelectedDate - curentData;
-    const time = convertMs(differentTime);
-    updateTimer(time);
+    currentData = new Date();
+    const differentTime = userSelectedDate - currentData;
 
+    // Якщо залишок часу <= 0, зупинити таймер і обнулити значення
     if (differentTime <= 0) {
       clearInterval(intervalId);
+      updateTimer({ days: '00', hours: '00', minutes: '00', seconds: '00' });
 
-      // unblock button and input
+      // Розблокувати кнопку і input
       datetimePicker.disabled = false;
+      return;
     }
+
+    const time = convertMs(differentTime);
+    updateTimer(time);
   }, 1000);
 }
